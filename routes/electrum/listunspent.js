@@ -172,7 +172,7 @@ module.exports = (shepherd) => {
       shepherd.listunspent(ecl, req.query.address)
       .then((listunspent) => {
         ecl.close();
-        console.log('electrum listunspent ==>', true);
+        // console.log('electrum listunspent ==>', true);
 
         const successObj = {
           msg: listunspent.code ? 'error' : 'success',

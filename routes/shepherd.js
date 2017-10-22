@@ -1,5 +1,5 @@
 const express = require('express');
-var shepherd = express.Router();
+let shepherd = express.Router();
 
 shepherd.Promise = require('bluebird');
 shepherd.electrumJSCore = require('./electrum/electrumjs.core.js');
