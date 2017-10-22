@@ -72,11 +72,9 @@ const createRecursiveParser = function(maxDepth, delimiter) {
 
 const createPromiseResult = function(resolve, reject) {
   return (err, result) => {
-    console.log(err)
     if (err) {
-      console.log('electrum error:');
-      console.log(err);
-
+      // console.log('electrum error:');
+      // console.log(err);
       resolve(err);
     } else {
       resolve(result);
