@@ -21,7 +21,7 @@ module.exports = (shepherd) => {
 
   // live
   shepherd.post('/pushtx', (req, res, next) => {
-    const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+    const ecl = new shepherd.electrumJSCore(req.body.port, req.body.ip, 'tcp');
 
     ecl.connect();
     ecl.blockchainTransactionBroadcast(req.body.rawtx)
