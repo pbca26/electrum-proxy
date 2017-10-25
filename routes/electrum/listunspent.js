@@ -3,7 +3,7 @@ module.exports = (shepherd) => {
     const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
 
     ecl.connect();
-    ecl.blockchainAddressListunspent(address)
+    ecl.blockchainAddressListunspent(req.query.address)
     .then((json) => {
       ecl.close();
 
