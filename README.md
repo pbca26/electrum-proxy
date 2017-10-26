@@ -8,13 +8,12 @@ Node >= 7.x
 
 ## Setup
 
-Change
+Change this line in main.js according to your env.
 ```
 const server = require('http')
                 .createServer(app)
                 .listen(9999, '127.0.0.1');
 ```
-accordingly.
 
 Run npm install
 
