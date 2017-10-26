@@ -22,40 +22,40 @@ Refer to Electrum Server doc for method specific params and outputs https://gith
 
 eg. GET /getbalance?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
 
-### [GET] getbalance eq. to blockchain.address.get_balance
-#### params: ip, port, address where address is a valid pub address
-#### eg. GET /getbalance?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+#### [GET] getbalance eq. to blockchain.address.get_balance
+params: ip, port, address where address is a valid pub address
+eg. GET /getbalance?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
 
-### [GET] getblockinfo eq. to blockchain.block.get_header
-#### params: ip, port, height where height is a valid blockchain height
-#### eg. GET /getblockinfo?ip=127.0.0.1&port=1111&height=100000
+#### [GET] getblockinfo eq. to blockchain.block.get_header
+params: ip, port, height where height is a valid blockchain height
+eg. GET /getblockinfo?ip=127.0.0.1&port=1111&height=100000
 
-### [GET] getcurrentblock eq. to blockchain.numblocks.subscribe
-#### params: ip, port
-#### eg. GET /getcurrentblock?ip=127.0.0.1&port=1111
+#### [GET] getcurrentblock eq. to blockchain.numblocks.subscribe
+params: ip, port
+eg. GET /getcurrentblock?ip=127.0.0.1&port=1111
 
-### [GET] estimatefee eq. to blockchain.estimatefee
-#### params: ip, port, blocks where blocks is a target number of blocks you want your transaction to be included within
-#### eg. GET /estimatefee?ip=127.0.0.1&port=1111&blocks=10
-#### * applies only to coin daemons that have built in support for smart fees
+#### [GET] estimatefee eq. to blockchain.estimatefee
+params: ip, port, blocks where blocks is a target number of blocks you want your transaction to be included within
+eg. GET /estimatefee?ip=127.0.0.1&port=1111&blocks=10
+* applies only to coin daemons that have built in support for smart fees
 
-### [GET] gettransaction eq. to blockchain.transaction.get
-#### params: ip, port, txid where txid is a valid blockchain transaction hash
-#### eg. GET /estimatefee?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1143b0e2473fbf1ddcdd4c4899c1349fb1
+#### [GET] gettransaction eq. to blockchain.transaction.get
+params: ip, port, txid where txid is a valid blockchain transaction hash
+eg. GET /estimatefee?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1143b0e2473fbf1ddcdd4c4899c1349fb1
 
-### [GET] listtransactions eq. to blockchain.address.get_history
-#### params: ip, port, address where address is a valid pub address
-#### eg. GET /getcurrentblock?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
-#### optional params: raw - return raw transaction data for all transactions, maxlength (only together with raw, default value 10). If raw=true transactions are sorted Z to A by timestamp value.
+#### [GET] listtransactions eq. to blockchain.address.get_history
+params: ip, port, address where address is a valid pub address
+eg. GET /getcurrentblock?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+optional params: raw - return raw transaction data for all transactions, maxlength (only together with raw, default value 10). If raw=true transactions are sorted Z to A by timestamp value.
 
-### [GET] listunspent eq. to blockchain.address.listunspent
-#### params: ip, port, address where address is a valid pub address
-#### eg. GET /listunspent?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+#### [GET] listunspent eq. to blockchain.address.listunspent
+params: ip, port, address where address is a valid pub address
+eg. GET /listunspent?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
 
-### [POST] pushtx eq. to blockchain.transaction.broadcast
-#### params: ip, port, address where address is a valid pub address
-#### eg. POST /pushtx data: { ip: 127.0.0.1, port: 1111, rawtx: 010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff061368b73f0101ffffffff0250d6dc01000000001976a914bfc6e590610d2f598a340bf5ff3f2675c7903af188ac0000000000000000222b24cc21a9ede2f61c3f71d1defd3fa999dfa36953755c690689499462b48bebd332974e8cc91120000000000000000000000000000000000000000000000000000000000000000000000000 }
+#### [POST] pushtx eq. to blockchain.transaction.broadcast
+params: ip, port, address where address is a valid pub address
+eg. POST /pushtx data: { ip: 127.0.0.1, port: 1111, rawtx: 010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff061368b73f0101ffffffff0250d6dc01000000001976a914bfc6e590610d2f598a340bf5ff3f2675c7903af188ac0000000000000000222b24cc21a9ede2f61c3f71d1defd3fa999dfa36953755c690689499462b48bebd332974e8cc91120000000000000000000000000000000000000000000000000000000000000000000000000 }
 
-### [GET] getmerkle eq. to blockchain.transaction.get_merkle
-#### params: ip, port, txid, height where txid is a valid blockchain transaction hash and height is a valid blockchain height
-#### eg. GET /getmerkle?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1143b0e2473fbf1ddcdd4c4899c1349fb1&height=100000
+#### [GET] getmerkle eq. to blockchain.transaction.get_merkle
+params: ip, port, txid, height where txid is a valid blockchain transaction hash and height is a valid blockchain height
+eg. GET /getmerkle?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1143b0e2473fbf1ddcdd4c4899c1349fb1&height=100000
