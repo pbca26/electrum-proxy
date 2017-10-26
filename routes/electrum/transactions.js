@@ -14,29 +14,13 @@ module.exports = (shepherd) => {
   }
 
   shepherd.get('/listtransactions', (req, res, next) => {
-    const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
 
-    if (!req.query.raw) {
-      ecl.connect();
-      ecl.blockchainAddressGetHistory(req.query.address)
-      .then((json) => {
-        ecl.close();
-
-        const successObj = {
-          msg: json.code ? 'error' : 'success',
-          result: json,
-        };
-
-        res.end(JSON.stringify(successObj));
-      });
-    } else {
-      // TODO: limit e.g. 1-10, 10-20 etc
-      const MAX_TX = req.query.maxlength || 10;
-      ecl.connect();
-
-      ecl.blockchainAddressGetHistory(req.query.address)
-      .then((json) => {
-        if (json.code) {
+      if (!req.query.raw) {
+        ecl.connect();
+        ecl.blockchainAddressGetHistory(req.query.address)
+        .then((json) => {
           ecl.close();
 
           const successObj = {
@@ -45,48 +29,66 @@ module.exports = (shepherd) => {
           };
 
           res.end(JSON.stringify(successObj));
-        } else {
-          if (json &&
-              json.length) {
-            json = shepherd.sortTransactions(json);
-            json = json.slice(0, MAX_TX);
-            let _transactions = [];
+        });
+      } else {
+        // TODO: limit e.g. 1-10, 10-20 etc
+        const MAX_TX = req.query.maxlength || 10;
+        ecl.connect();
 
-            shepherd.Promise.all(json.map((transaction, index) => {
-              return new shepherd.Promise((resolve, reject) => {
-                ecl.blockchainTransactionGet(transaction['tx_hash'])
-                .then((_rawtxJSON) => {
-                  _transactions.push({
-                    height: transaction.height,
-                    txid: transaction['tx_hash'],
-                    raw: _rawtxJSON,
+        ecl.blockchainAddressGetHistory(req.query.address)
+        .then((json) => {
+          if (json.code) {
+            ecl.close();
+
+            const successObj = {
+              msg: json.code ? 'error' : 'success',
+              result: json,
+            };
+
+            res.end(JSON.stringify(successObj));
+          } else {
+            if (json &&
+                json.length) {
+              json = shepherd.sortTransactions(json);
+              json = json.slice(0, MAX_TX);
+              let _transactions = [];
+
+              shepherd.Promise.all(json.map((transaction, index) => {
+                return new shepherd.Promise((resolve, reject) => {
+                  ecl.blockchainTransactionGet(transaction['tx_hash'])
+                  .then((_rawtxJSON) => {
+                    _transactions.push({
+                      height: transaction.height,
+                      txid: transaction['tx_hash'],
+                      raw: _rawtxJSON,
+                    });
+                    resolve();
                   });
-                  resolve();
                 });
+              }))
+              .then(promiseResult => {
+                ecl.close();
+
+                const successObj = {
+                  msg: 'success',
+                  result: _transactions,
+                };
+
+                res.end(JSON.stringify(successObj));
               });
-            }))
-            .then(promiseResult => {
+            } else {
               ecl.close();
 
               const successObj = {
                 msg: 'success',
-                result: _transactions,
+                result: [],
               };
 
               res.end(JSON.stringify(successObj));
-            });
-          } else {
-            ecl.close();
-
-            const successObj = {
-              msg: 'success',
-              result: [],
-            };
-
-            res.end(JSON.stringify(successObj));
+            }
           }
-        }
-      });
+        });
+      }
     }
   });
 

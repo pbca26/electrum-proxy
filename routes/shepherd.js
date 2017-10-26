@@ -14,7 +14,7 @@ shepherd.checkServerData = (port, ip, res) => {
   }
 
   if (!ip) {
-    missingParams.ip = 'ip is missing';
+    missingParams.ip = 'param is missing';
   }
 
   const successObj = {
