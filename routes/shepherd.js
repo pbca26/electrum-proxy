@@ -6,6 +6,30 @@ shepherd.electrumJSCore = require('./electrum/electrumjs.core.js');
 
 shepherd.CONNECTION_ERROR_OR_INCOMPLETE_DATA = 'connection error or incomplete data';
 
+shepherd.checkServerData = (port, ip, res) => {
+  let missingParams = {};
+
+  if (!port) {
+    missingParams.port = 'param is missing';
+  }
+
+  if (!ip) {
+    missingParams.ip = 'ip is missing';
+  }
+
+  const successObj = {
+    msg: 'error',
+    result: missingParams,
+  };
+
+  if (Object.keys(missingParams).length > 0) {
+    res.end(JSON.stringify(successObj));
+    return false;
+  }
+
+  return true;
+};
+
 shepherd = require('./electrum/balance.js')(shepherd);
 shepherd = require('./electrum/transactions.js')(shepherd);
 shepherd = require('./electrum/block.js')(shepherd);

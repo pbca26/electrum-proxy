@@ -91,20 +91,22 @@ module.exports = (shepherd) => {
   });
 
   shepherd.get('/gettransaction', (req, res, next) => {
-    const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
 
-    ecl.connect();
-    ecl.blockchainTransactionGet(req.query.txid)
-    .then((json) => {
-      ecl.close();
+      ecl.connect();
+      ecl.blockchainTransactionGet(req.query.txid)
+      .then((json) => {
+        ecl.close();
 
-      const successObj = {
-        msg: json.code ? 'error' : 'success',
-        result: json,
-      };
+        const successObj = {
+          msg: json.code ? 'error' : 'success',
+          result: json,
+        };
 
-      res.end(JSON.stringify(successObj));
-    });
+        res.end(JSON.stringify(successObj));
+      });
+    }
   });
 
   return shepherd;
