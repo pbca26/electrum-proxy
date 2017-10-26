@@ -8,6 +8,14 @@ Node >= 7.x
 
 ## Setup
 
+Change
+```
+const server = require('http')
+                .createServer(app)
+                .listen(9999, '127.0.0.1');
+```
+accordingly.
+
 Run npm install
 
 ## How to run

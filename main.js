@@ -1,8 +1,10 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
 
-var shepherd = require('./routes/shepherd');
-var app = express();
+// TODO argv
+
+let shepherd = require('./routes/shepherd');
+let app = express();
 
 app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
