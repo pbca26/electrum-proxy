@@ -1,12 +1,15 @@
 module.exports = (shepherd) => {
-  shepherd.get('/electrum/merkle/verify', (req, res, next) => {
-    shepherd.verifyMerkleByCoin(req.query.coin, req.query.txid, req.query.height)
-    .then((verifyMerkleRes) => {
+  shepherd.get('/getmerkle', (req, res, next) => {
+    const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+
+    ecl.connect();
+    ecl.blockchainTransactionGetMerkle(req.query.txid, req.query.height)
+    .then((json) => {
+      ecl.close();
+
       const successObj = {
-        msg: 'success',
-        result: {
-          merkleProof: verifyMerkleRes,
-        },
+        msg: json.code ? 'error' : 'success',
+        result: json,
       };
 
       res.end(JSON.stringify(successObj));

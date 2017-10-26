@@ -1,26 +1,20 @@
 module.exports = (shepherd) => {
-  shepherd.get('/electrum/estimatefee', (req, res, next) => {
-    const ecl = new shepherd.electrumJSCore(shepherd.electrumServers[req.query.network].port, shepherd.electrumServers[req.query.network].address, shepherd.electrumServers[req.query.network].proto); // tcp or tls
+  shepherd.get('/estimatefee', (req, res, next) => {
+    const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
 
     ecl.connect();
     ecl.blockchainEstimatefee(req.query.blocks)
     .then((json) => {
       ecl.close();
-      shepherd.log('electrum estimatefee ==>', true);
 
       const successObj = {
-        msg: 'success',
+        msg: json.code ? 'error' : 'success',
         result: json,
       };
 
       res.end(JSON.stringify(successObj));
     });
   });
-
-  shepherd.estimateTxSize = (numVins, numOuts) => {
-    // in x 180 + out x 34 + 10 plus or minus in
-    return numVins * 180 + numOuts * 34 + 11;
-  }
 
   return shepherd;
 };

@@ -7,8 +7,6 @@ module.exports = (shepherd) => {
     ecl.blockchainTransactionBroadcast(req.query.rawtx)
     .then((json) => {
       ecl.close();
-      // console.log('electrum pushtx ==>');
-      // console.log(json);
 
       const successObj = {
         msg: json.code ? 'error' : 'success',
@@ -27,8 +25,6 @@ module.exports = (shepherd) => {
     ecl.blockchainTransactionBroadcast(req.body.rawtx)
     .then((json) => {
       ecl.close();
-      // console.log('electrum pushtx ==>');
-      // console.log(json);
 
       const successObj = {
         msg: json.code ? 'error' : 'success',

@@ -11,7 +11,7 @@ module.exports = (shepherd) => {
         ecl.close();
 
         const successObj = {
-          msg: 'success',
+          msg: json.code ? 'error' : 'success',
           result: json,
         };
 
@@ -20,7 +20,7 @@ module.exports = (shepherd) => {
         ecl.close();
 
         const successObj = {
-          msg: 'error',
+          msg: json.code ? 'error' : 'success',
           result: json,
         };
 

@@ -21,7 +21,6 @@ module.exports = (shepherd) => {
       ecl.blockchainAddressGetHistory(req.query.address)
       .then((json) => {
         ecl.close();
-        // console.log(json);
 
         const successObj = {
           msg: json.code ? 'error' : 'success',
@@ -49,7 +48,6 @@ module.exports = (shepherd) => {
         } else {
           if (json &&
               json.length) {
-            // console.log(json);
             json = shepherd.sortTransactions(json);
             json = json.slice(0, MAX_TX);
             let _transactions = [];
