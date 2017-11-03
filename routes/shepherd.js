@@ -37,6 +37,7 @@ shepherd = require('./electrum/createtx.js')(shepherd);
 shepherd = require('./electrum/listunspent.js')(shepherd);
 shepherd = require('./electrum/estimate.js')(shepherd);
 shepherd = require('./electrum/merkle.js')(shepherd);
+shepherd = require('./electrum/server.js')(shepherd);
 
 // default route
 shepherd.get('/', (req, res, next) => {

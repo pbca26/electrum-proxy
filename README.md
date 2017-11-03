@@ -76,3 +76,8 @@ ex. POST /pushtx data: { ip: 127.0.0.1, port: 1111, rawtx: 010000000001010000000
 params: ip, port, txid, height where txid is a valid blockchain transaction hash and height is a valid blockchain height
 
 ex. GET /getmerkle?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1143b0e2473fbf1ddcdd4c4899c1349fb1&height=100000
+
+#### [GET] server/version eq. to server.version
+params: ip, port
+
+ex. GET /server/version?ip=127.0.0.1&port=1111
