@@ -133,7 +133,7 @@ module.exports = (shepherd) => {
       } else {
         const successObj = {
           msg: 'error',
-          result: 'error',
+          result: json,
         };
 
         res.end(JSON.stringify(successObj));
