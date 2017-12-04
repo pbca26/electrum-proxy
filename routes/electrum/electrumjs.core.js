@@ -25,6 +25,7 @@ SOFTWARE.
 const tls = require('tls');
 const net = require('net');
 const EventEmitter = require('events').EventEmitter;
+const SOCKET_MAX_TIMEOUT = 10000;
 
 const makeRequest = function(method, params, id) {
   return JSON.stringify({
@@ -73,9 +74,10 @@ const createRecursiveParser = function(maxDepth, delimiter) {
 const createPromiseResult = function(resolve, reject) {
   return (err, result) => {
     if (err) {
-      // console.log('electrum error:');
-      // console.log(err);
+      console.log('electrum error:');
+      console.log(err);
       resolve(err);
+      // reject(err);
     } else {
       resolve(result);
     }
@@ -127,6 +129,12 @@ const getSocket = function(protocol, options) {
 const initSocket = function(self, protocol, options) {
   const conn = getSocket(protocol, options);
 
+  conn.setTimeout(SOCKET_MAX_TIMEOUT);
+  conn.on('timeout', () => {
+    console.log('socket timeout');
+    self.onError(new Error('socket timeout'));
+    self.onClose();
+  });
   conn.setEncoding('utf8');
   conn.setKeepAlive(true, 0);
   conn.setNoDelay(true);
@@ -171,7 +179,7 @@ class Client {
     this.status = 1;
 
     return new Promise((resolve, reject) => {
-      const errorHandler = (e) => resolve(e);
+      const errorHandler = (e) => reject(e)
 
       this.conn.connect(this.port, this.host, () => {
         this.conn.removeListener('error', errorHandler);
@@ -240,10 +248,7 @@ class Client {
 
   onClose() {
     Object.keys(this.callbackMessageQueue).forEach((key) => {
-      this.callbackMessageQueue[key]({
-        code: '-777',
-        result: 'failed to connect to electrum server'
-      });
+      this.callbackMessageQueue[key](new Error('close connect'));
       delete this.callbackMessageQueue[key];
     });
   }

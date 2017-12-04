@@ -1,8 +1,6 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
-
-// TODO argv
-
+const config = require('./config');
 let shepherd = require('./routes/shepherd');
 let app = express();
 
@@ -29,4 +27,6 @@ app.use('/api', shepherd);
 
 const server = require('http')
                 .createServer(app)
-                .listen(9999, '127.0.0.1');
+                .listen(config.port, config.ip);
+
+console.log(`Electrum Proxy Server is running at ${config.ip}:${config.port}`);

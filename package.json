@@ -1,7 +1,7 @@
 {
   "name": "electrum-proxy",
   "productName": "Electrum Proxy Server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Electrum Proxy Server",
   "main": "main.js",
   "scripts": {
@@ -20,6 +20,8 @@
   "dependencies": {
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "bitcoinjs-lib": "^3.2.0",
+    "bluebird": "^3.4.7"
   }
 }
