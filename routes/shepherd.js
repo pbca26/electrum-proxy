@@ -39,6 +39,7 @@ shepherd = require('./electrum/estimate.js')(shepherd);
 shepherd = require('./electrum/merkle.js')(shepherd);
 shepherd = require('./electrum/server.js')(shepherd);
 shepherd = require('./electrum/interest.js')(shepherd);
+shepherd = require('./electrum/dex.js')(shepherd);
 
 // default route
 shepherd.get('/', (req, res, next) => {
@@ -46,5 +47,3 @@ shepherd.get('/', (req, res, next) => {
 });
 
 module.exports = shepherd;
-
-// f37997e39e4cc9342ea3ce553dde93a50fff26edcf52a9020a9ad5a3883d0735
