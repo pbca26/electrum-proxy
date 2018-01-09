@@ -1,10 +1,9 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
-const config = require('./config');
 let shepherd = require('./routes/shepherd');
 let app = express();
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'X-Requested-With');
 	res.header('Access-Control-Allow-Credentials', 'true');
@@ -19,11 +18,20 @@ app.use(bodyParser.urlencoded({
 	extended: true,
 })); // support encoded bodies
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
 	res.send('Electrum Proxy Server');
 });
 
 app.use('/api', shepherd);
+
+let config = {};
+process.argv.forEach((val, index) => {
+	if (val.indexOf('ip=') > -1) {
+		config.ip = val.replace('ip=', '');
+	} else if (val.indexOf('port=') > -1) {
+		config.port = val.replace('port=', '');
+	}
+});
 
 const server = require('http')
                 .createServer(app)

@@ -1,7 +1,7 @@
 {
   "name": "electrum-proxy",
   "productName": "Electrum Proxy Server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Electrum Proxy Server",
   "main": "main.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "agama",
     "SuperNET",
     "komodo",
-    "pax"
+    "electrum"
   ],
   "author": "SuperNET",
   "license": "MIT",
@@ -21,8 +21,6 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "bitcoinjs-lib": "^3.2.0",
-    "bluebird": "^3.4.7",
-    "request": "^2.80.0"
+    "bluebird": "^3.4.7"
   }
 }

@@ -15,7 +15,7 @@ module.exports = (shepherd) => {
 
   shepherd.get('/listtransactions', (req, res, next) => {
     if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
-      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (!req.query.raw) {
         ecl.connect();
@@ -94,7 +94,7 @@ module.exports = (shepherd) => {
 
   shepherd.get('/gettransaction', (req, res, next) => {
     if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
-      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, 'tcp');
+      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();
       ecl.blockchainTransactionGet(req.query.txid)
