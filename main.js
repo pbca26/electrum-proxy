@@ -1,5 +1,6 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
+const compression = require('compression');
 let shepherd = require('./routes/shepherd');
 let app = express();
 
@@ -22,6 +23,10 @@ app.get('/', (req, res) => {
 	res.send('Electrum Proxy Server');
 });
 
+app.use(compression({
+	level: 9,
+	threshold: 0,
+}));
 app.use('/api', shepherd);
 
 let config = {};
@@ -35,6 +40,6 @@ process.argv.forEach((val, index) => {
 
 const server = require('http')
                 .createServer(app)
-                .listen(config.port, config.ip);
+                .listen(config.port || 8118, config.ip || 'localhost');
 
-console.log(`Electrum Proxy Server is running at ${config.ip}:${config.port}`);
+console.log(`Electrum Proxy Server is running at ${config.ip || 'localhost'}:${config.port || 8118}`);

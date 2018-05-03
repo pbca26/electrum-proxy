@@ -1,3 +1,6 @@
+const Promise = require('bluebird');
+const electrumJSCore = require('./electrumjs.core.js');
+
 module.exports = (shepherd) => {
   shepherd.sortTransactions = (transactions) => {
     return transactions.sort((b, a) => {
@@ -15,7 +18,7 @@ module.exports = (shepherd) => {
 
   shepherd.get('/listtransactions', (req, res, next) => {
     if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
-      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+      const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (!req.query.raw) {
         ecl.connect();
@@ -28,6 +31,7 @@ module.exports = (shepherd) => {
             result: json,
           };
 
+          res.set({ 'Content-Type': 'application/json' });
           res.end(JSON.stringify(successObj));
         });
       } else {
@@ -53,8 +57,8 @@ module.exports = (shepherd) => {
               json = json.slice(0, MAX_TX);
               let _transactions = [];
 
-              shepherd.Promise.all(json.map((transaction, index) => {
-                return new shepherd.Promise((resolve, reject) => {
+              Promise.all(json.map((transaction, index) => {
+                return new Promise((resolve, reject) => {
                   ecl.blockchainTransactionGet(transaction['tx_hash'])
                   .then((_rawtxJSON) => {
                     _transactions.push({
@@ -74,6 +78,7 @@ module.exports = (shepherd) => {
                   result: _transactions,
                 };
 
+                res.set({ 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(successObj));
               });
             } else {
@@ -84,6 +89,7 @@ module.exports = (shepherd) => {
                 result: [],
               };
 
+              res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(successObj));
             }
           }
@@ -94,7 +100,7 @@ module.exports = (shepherd) => {
 
   shepherd.get('/gettransaction', (req, res, next) => {
     if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
-      const ecl = new shepherd.electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+      const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();
       ecl.blockchainTransactionGet(req.query.txid)
@@ -106,6 +112,7 @@ module.exports = (shepherd) => {
           result: json,
         };
 
+        res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       });
     }
