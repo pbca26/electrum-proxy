@@ -29,7 +29,11 @@ app.use(compression({
 }));
 app.use('/api', shepherd);
 
-let config = {};
+let config = {
+	https: false,
+};
+let server;
+
 process.argv.forEach((val, index) => {
 	if (val.indexOf('ip=') > -1) {
 		config.ip = val.replace('ip=', '');
@@ -38,8 +42,18 @@ process.argv.forEach((val, index) => {
 	}
 });
 
-const server = require('http')
-                .createServer(app)
-                .listen(config.port || 8118, config.ip || 'localhost');
+if (config.https) {
+  const options = {
+    key: fs.readFileSync('certs/priv.pem'),
+    cert: fs.readFileSync('certs/cert.pem'),
+  };
+  server = require('https')
+            .createServer(options, app)
+            .listen(config.port || 8118, config.ip || 'localhost');
+} else {
+  server = require('http')
+            .createServer(app)
+            .listen(config.port || 8118, config.ip || 'localhost');
+}
 
 console.log(`Electrum Proxy Server is running at ${config.ip || 'localhost'}:${config.port || 8118}`);
