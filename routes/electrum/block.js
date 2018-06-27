@@ -26,13 +26,13 @@ module.exports = (shepherd) => {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();
-      ecl.blockchainNumblocksSubscribe()
+      ecl.blockchainHeadersSubscribe()
       .then((json) => {
         ecl.close();
 
         const successObj = {
-          msg: json.code ? 'error' : 'success',
-          result: json,
+          msg: json.code || !json['block_height'] ? 'error' : 'success',
+          result: json['block_height'],
         };
 
         res.set({ 'Content-Type': 'application/json' });
