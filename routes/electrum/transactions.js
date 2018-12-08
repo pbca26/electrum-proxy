@@ -17,12 +17,25 @@ module.exports = (shepherd) => {
   }
 
   shepherd.get('/listtransactions', (req, res, next) => {
-    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
-      const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+    const {
+      port,
+      ip,
+      proto,
+      address,
+      maxlength,
+      raw,
+      pagination,
+      page,
+    } = req.query;
+    const pageSize = 10;
+    const maxHistoryDepth = 2000;
 
-      if (!req.query.raw) {
+    if (shepherd.checkServerData(port, ip, res)) {
+      const ecl = new electrumJSCore(port, ip, proto || 'tcp');
+
+      if (!raw) {
         ecl.connect();
-        ecl.blockchainAddressGetHistory(req.query.address)
+        ecl.blockchainAddressGetHistory(address)
         .then((json) => {
           ecl.close();
 
@@ -35,11 +48,10 @@ module.exports = (shepherd) => {
           res.end(JSON.stringify(successObj));
         });
       } else {
-        // TODO: limit e.g. 1-10, 10-20 etc
-        const MAX_TX = req.query.maxlength || 10;
+        const MAX_TX = pagination ? maxHistoryDepth : maxlength || 10;
         ecl.connect();
 
-        ecl.blockchainAddressGetHistory(req.query.address)
+        ecl.blockchainAddressGetHistory(address)
         .then((json) => {
           if (json.code) {
             ecl.close();
@@ -53,34 +65,80 @@ module.exports = (shepherd) => {
           } else {
             if (json &&
                 json.length) {
+              const txsCount = json.length;
+              let isPaginationError = false;
+                  
+              let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pageSize);
+              pagesTotal = pagesTotal > 0 ? pagesTotal - 1 : pagesTotal;
               json = shepherd.sortTransactions(json);
-              json = json.slice(0, MAX_TX);
-              let _transactions = [];
 
-              Promise.all(json.map((transaction, index) => {
-                return new Promise((resolve, reject) => {
-                  ecl.blockchainTransactionGet(transaction['tx_hash'])
-                  .then((_rawtxJSON) => {
-                    _transactions.push({
-                      height: transaction.height,
-                      txid: transaction['tx_hash'],
-                      raw: _rawtxJSON,
+              if (pagination &&
+                  page &&
+                  Number(page) &&
+                  page > 0 &&
+                  page <= pagesTotal) {
+                json = json.slice(Number(page - 1) * pageSize, (page * pageSize));
+              } else {
+                if (!pagination) {
+                  json = json.slice(0, pagination ? pageSize : MAX_TX);
+                } else {
+                  ecl.close();
+                  isPaginationError = true;
+
+                  const retObj = {
+                    msg: 'error',
+                    result: 'wrong page number',
+                  };
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(retObj));
+                }
+              }
+              
+              if (!isPaginationError) {
+                let _transactions = [];
+
+                Promise.all(json.map((transaction, index) => {
+                  return new Promise((resolve, reject) => {
+                    ecl.blockchainTransactionGet(transaction.tx_hash)
+                    .then((_rawtxJSON) => {
+                      _transactions.push({
+                        height: transaction.height,
+                        txid: transaction.tx_hash,
+                        raw: _rawtxJSON,
+                      });
+                      resolve();
                     });
-                    resolve();
                   });
+                }))
+                .then(promiseResult => {
+                  ecl.close();
+
+                  let successObj;
+                  _transactions = shepherd.sortTransactions(_transactions);
+
+                  if (pagination) {
+                    successObj = {
+                      msg: 'success',
+                      result: {
+                        txsCount,
+                        pageSize,
+                        maxHistoryDepth,
+                        page,
+                        transactions: _transactions,  
+                      },
+                    };
+                  } else {
+                    successObj = {
+                      msg: 'success',
+                      result: _transactions,
+                    };
+                  }
+
+                  res.set({ 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify(successObj));
                 });
-              }))
-              .then(promiseResult => {
-                ecl.close();
-
-                const successObj = {
-                  msg: 'success',
-                  result: _transactions,
-                };
-
-                res.set({ 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(successObj));
-              });
+              }
             } else {
               ecl.close();
 
