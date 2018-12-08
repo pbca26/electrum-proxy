@@ -142,10 +142,24 @@ module.exports = (shepherd) => {
             } else {
               ecl.close();
 
-              const successObj = {
-                msg: 'success',
-                result: [],
-              };
+              let successObj;
+
+              if (pagination) {
+                successObj = {
+                  msg: 'success',
+                  result: {
+                    txsCount: 0,
+                    pageSize,
+                    maxHistoryDepth,
+                    transactions: [],
+                  },
+                };
+              } else {
+                successObj = {
+                  msg: 'success',
+                  result: [],
+                };
+              }
 
               res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(successObj));

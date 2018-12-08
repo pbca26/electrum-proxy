@@ -53,9 +53,19 @@ ex. GET /estimatefee?ip=127.0.0.1&port=1111&txid=a110b2ce1a4ab3c6182d3861100s0c1
 #### [GET] listtransactions eq. to blockchain.address.get_history
 params: ip, port, address where address is a valid pub address
 
-ex. GET /getcurrentblock?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+ex. GET /listtransactions?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+
+ex. GET /listtransactions?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1&raw=true
+
+ex. GET /listtransactions?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1&raw=true&page=2&pagination=true
 
 optional params: raw - return raw transaction data for all transactions, maxlength (only together with raw, default value 10). If raw=true transactions are sorted Z to A by timestamp value.
+
+pagination=true - enable pagination
+
+page - specific page number
+
+return format: txsCount - total transactions count for a specific address, pageSize - transactions per page, page, transactions - transactions object
 
 #### [GET] listunspent eq. to blockchain.address.listunspent
 params: ip, port, address where address is a valid pub address
