@@ -17,7 +17,7 @@ module.exports = (shepherd) => {
   }
 
   shepherd.get('/listtransactions', (req, res, next) => {
-    const {
+    let {
       port,
       ip,
       proto,
@@ -29,6 +29,8 @@ module.exports = (shepherd) => {
     } = req.query;
     const pageSize = 10;
     const maxHistoryDepth = 2000;
+
+    if (!page) page = 1;
 
     if (shepherd.checkServerData(port, ip, res)) {
       const ecl = new electrumJSCore(port, ip, proto || 'tcp');
@@ -67,9 +69,9 @@ module.exports = (shepherd) => {
                 json.length) {
               const txsCount = json.length;
               let isPaginationError = false;
-                  
+
               let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pageSize);
-              pagesTotal = pagesTotal > 0 ? pagesTotal - 1 : pagesTotal;
+              pagesTotal = pagesTotal > 1 ? pagesTotal - 1 : pagesTotal;
               json = shepherd.sortTransactions(json);
 
               if (pagination &&
@@ -94,7 +96,7 @@ module.exports = (shepherd) => {
                   res.end(JSON.stringify(retObj));
                 }
               }
-              
+
               if (!isPaginationError) {
                 let _transactions = [];
 
@@ -125,7 +127,7 @@ module.exports = (shepherd) => {
                         pageSize,
                         maxHistoryDepth,
                         page,
-                        transactions: _transactions,  
+                        transactions: _transactions,
                       },
                     };
                   } else {
