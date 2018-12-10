@@ -26,8 +26,17 @@ module.exports = (shepherd) => {
       raw,
       pagination,
       page,
+      pagesize,
     } = req.query;
-    const pageSize = 10;
+    
+    if (!pagesize ||
+       !Number(pagesize) ||
+       pagesize % 1 !== 0 ||
+       pagesize <= 0 ||
+       pagesize > 30) {
+      pagesize = 10;
+    }
+
     const maxHistoryDepth = 2000;
 
     if (!page) page = 1;
@@ -70,8 +79,7 @@ module.exports = (shepherd) => {
               const txsCount = json.length;
               let isPaginationError = false;
 
-              let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pageSize);
-              pagesTotal = pagesTotal > 1 ? pagesTotal - 1 : pagesTotal;
+              let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pagesize);
               json = shepherd.sortTransactions(json);
 
               if (pagination &&
@@ -79,10 +87,10 @@ module.exports = (shepherd) => {
                   Number(page) &&
                   page > 0 &&
                   page <= pagesTotal) {
-                json = json.slice(Number(page - 1) * pageSize, (page * pageSize));
+                json = json.slice(Number(page - 1) * pagesize, (page * pagesize));
               } else {
                 if (!pagination) {
-                  json = json.slice(0, pagination ? pageSize : MAX_TX);
+                  json = json.slice(0, pagination ? pagesize : MAX_TX);
                 } else {
                   ecl.close();
                   isPaginationError = true;
@@ -124,7 +132,8 @@ module.exports = (shepherd) => {
                       msg: 'success',
                       result: {
                         txsCount,
-                        pageSize,
+                        pageSize: pagesize,
+                        pagesTotal,
                         maxHistoryDepth,
                         page,
                         transactions: _transactions,
@@ -151,7 +160,8 @@ module.exports = (shepherd) => {
                   msg: 'success',
                   result: {
                     txsCount: 0,
-                    pageSize,
+                    pageSize: pagesize,
+                    pagesTotal: 0,
                     maxHistoryDepth,
                     transactions: [],
                   },
