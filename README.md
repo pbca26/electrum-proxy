@@ -65,7 +65,9 @@ pagination=true - enable pagination
 
 page - specific page number
 
-return format: txsCount - total transactions count for a specific address, pageSize - transactions per page, page, transactions - transactions object
+pagesize - number within a range from 10 to 30, default 10
+
+return format: txsCount - total transactions count for a specific address, pageSize - transactions per page, page, pagesTotal, transactions - transactions object
 
 #### [GET] listunspent eq. to blockchain.address.listunspent
 params: ip, port, address where address is a valid pub address

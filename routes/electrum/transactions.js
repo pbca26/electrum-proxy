@@ -32,7 +32,7 @@ module.exports = (shepherd) => {
     if (!pagesize ||
        !Number(pagesize) ||
        pagesize % 1 !== 0 ||
-       pagesize <= 0 ||
+       pagesize < 10 ||
        pagesize > 30) {
       pagesize = 10;
     }
