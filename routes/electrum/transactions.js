@@ -59,7 +59,7 @@ module.exports = (shepherd) => {
           res.end(JSON.stringify(successObj));
         });
       } else {
-        const MAX_TX = pagination ? maxHistoryDepth : maxlength || 10;
+        const MAX_TX = pagination ? maxHistoryDepth : (maxlength && Number(maxlength) >= 10 && Number(maxlength) <= 100 ? maxlength : 10);
         ecl.connect();
 
         ecl.blockchainAddressGetHistory(address)
