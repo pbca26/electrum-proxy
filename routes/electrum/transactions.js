@@ -4,12 +4,26 @@ const electrumJSCore = require('./electrumjs.core.js');
 module.exports = (shepherd) => {
   shepherd.sortTransactions = (transactions) => {
     return transactions.sort((b, a) => {
-      if (a.height < b.height) {
+      if (a.height < b.height &&
+          a.height &&
+          b.height) {
         return -1;
       }
 
-      if (a.height > b.height) {
+      if (a.height > b.height &&
+          a.height &&
+          b.height) {
         return 1;
+      }
+
+      if (!a.height &&
+          b.height) {
+        return 1;
+      }
+
+      if (!b.height &&
+          a.height) {
+        return -1;
       }
 
       return 0;
