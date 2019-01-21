@@ -57,9 +57,15 @@ module.exports = (shepherd) => {
 
     if (shepherd.checkServerData(port, ip, res)) {
       const ecl = new electrumJSCore(port, ip, proto || 'tcp');
+      
+      if (req.query.eprotocol &&
+          Number(req.query.eprotocol) > 0) {
+        ecl.setProtocolVersion(req.query.eprotocol);
+      }
+
+      ecl.connect();
 
       if (!raw) {
-        ecl.connect();
         ecl.blockchainAddressGetHistory(address)
         .then((json) => {
           ecl.close();
@@ -74,7 +80,6 @@ module.exports = (shepherd) => {
         });
       } else {
         const MAX_TX = pagination ? maxHistoryDepth : (maxlength && Number(maxlength) >= 10 && Number(maxlength) <= 100 ? maxlength : 10);
-        ecl.connect();
 
         ecl.blockchainAddressGetHistory(address)
         .then((json) => {
@@ -199,6 +204,11 @@ module.exports = (shepherd) => {
   shepherd.get('/gettransaction', (req, res, next) => {
     if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+
+      if (req.query.eprotocol &&
+          Number(req.query.eprotocol) > 0) {
+        ecl.setProtocolVersion(req.query.eprotocol);
+      }
 
       ecl.connect();
       ecl.blockchainTransactionGet(req.query.txid, req.query.verbose)
