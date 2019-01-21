@@ -201,7 +201,7 @@ module.exports = (shepherd) => {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();
-      ecl.blockchainTransactionGet(req.query.txid)
+      ecl.blockchainTransactionGet(req.query.txid, req.query.verbose)
       .then((json) => {
         ecl.close();
 

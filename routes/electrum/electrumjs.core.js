@@ -2,7 +2,7 @@
 MIT License
 
 Copyright (c) 2017 Yuki Akiyama, SuperNET
-Copyright (c) 2018 SuperNET
+Copyright (c) 2018 - 2019 SuperNET
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,9 @@ const SOCKET_MAX_TIMEOUT = 30000;
 const makeRequest = (method, params, id) => {
   return JSON.stringify({
     jsonrpc : '2.0',
-    method : method,
-    params : params,
-    id : id,
+    method,
+    params,
+    id,
   });
 }
 
@@ -346,8 +346,8 @@ class ElectrumJSCore extends Client {
     return this.request('blockchain.transaction.broadcast', [rawtx]);
   }
 
-  blockchainTransactionGet(tx_hash) {
-    return this.request('blockchain.transaction.get', [tx_hash]);
+  blockchainTransactionGet(tx_hash, verbose) { // verbose electrum protocol >= 1.2
+    return this.request('blockchain.transaction.get', verbose ? [tx_hash, true] : [tx_hash]);
   }
 
   blockchainTransactionGetMerkle(tx_hash, height) {
