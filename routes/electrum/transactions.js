@@ -129,13 +129,20 @@ module.exports = (shepherd) => {
 
                 Promise.all(json.map((transaction, index) => {
                   return new Promise((resolve, reject) => {
-                    ecl.blockchainTransactionGet(transaction.tx_hash)
+                    ecl.blockchainTransactionGet(transaction.tx_hash, req.query.verbose && req.query.verbose === 'true' ? true : null)
                     .then((_rawtxJSON) => {
-                      _transactions.push({
+                      let txObj = {
                         height: transaction.height,
                         txid: transaction.tx_hash,
                         raw: _rawtxJSON,
-                      });
+                      }
+
+                      if (_rawtxJSON.hasOwnProperty('hex')) {
+                        txObj.verbose = _rawtxJSON;
+                        txObj.raw = _rawtxJSON.hex;
+                      }
+
+                      _transactions.push(txObj);
                       resolve();
                     });
                   });
