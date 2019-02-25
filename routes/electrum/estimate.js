@@ -1,8 +1,8 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
 module.exports = (shepherd) => {
-  shepherd.get('/estimatefee', (req, res, next) => {
-    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+  api.get('/estimatefee', (req, res, next) => {
+    if (api.checkServerData(req.query.port, req.query.ip, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (req.query.eprotocol &&
@@ -26,5 +26,5 @@ module.exports = (shepherd) => {
     }
   });
 
-  return shepherd;
+  return api;
 };

@@ -1,9 +1,9 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
-module.exports = (shepherd) => {
+module.exports = (api) => {
   // test
-  shepherd.get('/pushtx', (req, res, next) => {
-    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+  api.get('/pushtx', (req, res, next) => {
+    if (api.checkServerData(req.query.port, req.query.ip, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (req.query.eprotocol &&
@@ -28,8 +28,8 @@ module.exports = (shepherd) => {
   });
 
   // live
-  shepherd.post('/pushtx', (req, res, next) => {
-    if (shepherd.checkServerData(req.body.port, req.body.ip, res)) {
+  api.post('/pushtx', (req, res, next) => {
+    if (api.checkServerData(req.body.port, req.body.ip, res)) {
       const ecl = new electrumJSCore(req.body.port, req.body.ip, req.body.proto || 'tcp');
 
       if (req.body.eprotocol &&
@@ -53,5 +53,5 @@ module.exports = (shepherd) => {
     }
   });
 
-  return shepherd;
+  return api;
 };

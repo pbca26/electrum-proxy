@@ -1,8 +1,8 @@
 const Promise = require('bluebird');
 const electrumJSCore = require('./electrumjs.core.js');
 
-module.exports = (shepherd) => {
-  shepherd.sortTransactions = (transactions) => {
+module.exports = (api) => {
+  api.sortTransactions = (transactions) => {
     return transactions.sort((b, a) => {
       if (a.height < b.height &&
           a.height &&
@@ -30,7 +30,7 @@ module.exports = (shepherd) => {
     });
   }
 
-  shepherd.get('/listtransactions', (req, res, next) => {
+  api.get('/listtransactions', (req, res, next) => {
     let {
       port,
       ip,
@@ -55,7 +55,7 @@ module.exports = (shepherd) => {
 
     if (!page) page = 1;
 
-    if (shepherd.checkServerData(port, ip, res)) {
+    if (api.checkServerData(port, ip, res)) {
       const ecl = new electrumJSCore(port, ip, proto || 'tcp');
       
       if (req.query.eprotocol &&
@@ -99,7 +99,7 @@ module.exports = (shepherd) => {
               let isPaginationError = false;
 
               let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pagesize);
-              json = shepherd.sortTransactions(json);
+              json = api.sortTransactions(json);
 
               if (pagination &&
                   page &&
@@ -151,7 +151,7 @@ module.exports = (shepherd) => {
                   ecl.close();
 
                   let successObj;
-                  _transactions = shepherd.sortTransactions(_transactions);
+                  _transactions = api.sortTransactions(_transactions);
 
                   if (pagination) {
                     successObj = {
@@ -208,8 +208,8 @@ module.exports = (shepherd) => {
     }
   });
 
-  shepherd.get('/gettransaction', (req, res, next) => {
-    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+  api.get('/gettransaction', (req, res, next) => {
+    if (api.checkServerData(req.query.port, req.query.ip, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (req.query.eprotocol &&
@@ -233,5 +233,5 @@ module.exports = (shepherd) => {
     }
   });
 
-  return shepherd;
+  return api;
 };

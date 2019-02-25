@@ -1,8 +1,8 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
-module.exports = (shepherd) => {
-  shepherd.get('/listunspent', (req, res, next) => {
-    if (shepherd.checkServerData(req.query.port, req.query.ip, res)) {
+module.exports = (api) => {
+  api.get('/listunspent', (req, res, next) => {
+    if (api.checkServerData(req.query.port, req.query.ip, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
       const verbose = req.query.verbose && req.query.verbose === 'true' ? true : false;
 
@@ -77,5 +77,5 @@ module.exports = (shepherd) => {
     }
   });
 
-  return shepherd;
+  return api;
 };

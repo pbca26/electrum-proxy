@@ -1,7 +1,7 @@
 const express = require('express');
 const	bodyParser = require('body-parser');
 const compression = require('compression');
-let shepherd = require('./routes/shepherd');
+let api = require('./routes/api');
 let app = express();
 
 app.use((req, res, next) => {
@@ -27,7 +27,7 @@ app.use(compression({
 	level: 9,
 	threshold: 0,
 }));
-app.use('/api', shepherd);
+app.use('/api', api);
 
 let config = {
 	https: false,
