@@ -1,18 +1,9 @@
 const electrumJSCore = require('./electrumjs.core.js');
+const { urlParamsCheck } = require('../utils');
 
 module.exports = (api) => {
-  api.CONNECTION_ERROR_OR_INCOMPLETE_DATA = 'connection error or incomplete data';
-
-  api.checkServerData = (port, ip, res) => {
-    let missingParams = {};
-
-    if (!port) {
-      missingParams.port = 'param is missing';
-    }
-
-    if (!ip) {
-      missingParams.ip = 'param is missing';
-    }
+  api.checkServerData = (params, res) => {
+    const missingParams = urlParamsCheck(params);
 
     const successObj = {
       msg: 'error',
@@ -29,7 +20,7 @@ module.exports = (api) => {
   };
 
   api.get('/server/version', (req, res, next) => {
-    if (api.checkServerData(req.query.port, req.query.ip, res)) {
+    if (api.checkServerData(req.query, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();

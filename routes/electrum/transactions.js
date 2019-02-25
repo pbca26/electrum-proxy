@@ -1,35 +1,8 @@
 const Promise = require('bluebird');
 const electrumJSCore = require('./electrumjs.core.js');
+const { sortTransactions } = require('../utils');
 
 module.exports = (api) => {
-  api.sortTransactions = (transactions) => {
-    return transactions.sort((b, a) => {
-      if (a.height < b.height &&
-          a.height &&
-          b.height) {
-        return -1;
-      }
-
-      if (a.height > b.height &&
-          a.height &&
-          b.height) {
-        return 1;
-      }
-
-      if (!a.height &&
-          b.height) {
-        return 1;
-      }
-
-      if (!b.height &&
-          a.height) {
-        return -1;
-      }
-
-      return 0;
-    });
-  }
-
   api.get('/listtransactions', (req, res, next) => {
     let {
       port,
@@ -55,7 +28,7 @@ module.exports = (api) => {
 
     if (!page) page = 1;
 
-    if (api.checkServerData(port, ip, res)) {
+    if (api.checkServerData(req.query, res)) {
       const ecl = new electrumJSCore(port, ip, proto || 'tcp');
       
       if (req.query.eprotocol &&
@@ -99,7 +72,7 @@ module.exports = (api) => {
               let isPaginationError = false;
 
               let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pagesize);
-              json = api.sortTransactions(json);
+              json = sortTransactions(json);
 
               if (pagination &&
                   page &&
@@ -151,7 +124,7 @@ module.exports = (api) => {
                   ecl.close();
 
                   let successObj;
-                  _transactions = api.sortTransactions(_transactions);
+                  _transactions = sortTransactions(_transactions);
 
                   if (pagination) {
                     successObj = {
@@ -209,7 +182,7 @@ module.exports = (api) => {
   });
 
   api.get('/gettransaction', (req, res, next) => {
-    if (api.checkServerData(req.query.port, req.query.ip, res)) {
+    if (api.checkServerData(req.query, res)) {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       if (req.query.eprotocol &&
