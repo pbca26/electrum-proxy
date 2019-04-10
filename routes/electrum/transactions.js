@@ -29,155 +29,156 @@ module.exports = (api) => {
     if (!page) page = 1;
 
     if (api.checkServerData(req.query, res)) {
-      const ecl = new electrumJSCore(port, ip, proto || 'tcp');
-      
-      if (req.query.eprotocol &&
-          Number(req.query.eprotocol) > 0) {
-        ecl.setProtocolVersion(req.query.eprotocol);
-      }
+      (async function() {
+        const ecl = new electrumJSCore(port, ip, proto || 'tcp');
+        
+        ecl.connect();
+        
+        if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
+          if (!raw) {
+            ecl.blockchainAddressGetHistory(address)
+            .then((json) => {
+              ecl.close();
 
-      ecl.connect();
+              const successObj = {
+                msg: json.code ? 'error' : 'success',
+                result: json,
+              };
 
-      if (!raw) {
-        ecl.blockchainAddressGetHistory(address)
-        .then((json) => {
-          ecl.close();
-
-          const successObj = {
-            msg: json.code ? 'error' : 'success',
-            result: json,
-          };
-
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
-        });
-      } else {
-        const MAX_TX = pagination ? maxHistoryDepth : (maxlength && Number(maxlength) >= 10 && Number(maxlength) <= 100 ? maxlength : 10);
-
-        ecl.blockchainAddressGetHistory(address)
-        .then((json) => {
-          if (json.code) {
-            ecl.close();
-
-            const successObj = {
-              msg: json.code ? 'error' : 'success',
-              result: json,
-            };
-
-            res.end(JSON.stringify(successObj));
+              res.set({ 'Content-Type': 'application/json' });
+              res.end(JSON.stringify(successObj));
+            });
           } else {
-            if (json &&
-                json.length) {
-              const txsCount = json.length;
-              let isPaginationError = false;
+            const MAX_TX = pagination ? maxHistoryDepth : (maxlength && Number(maxlength) >= 10 && Number(maxlength) <= 100 ? maxlength : 10);
 
-              let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pagesize);
-              json = sortTransactions(json);
+            ecl.blockchainAddressGetHistory(address)
+            .then((json) => {
+              if (json.code) {
+                ecl.close();
 
-              if (pagination &&
-                  page &&
-                  Number(page) &&
-                  page > 0 &&
-                  page <= pagesTotal) {
-                json = json.slice(Number(page - 1) * pagesize, (page * pagesize));
+                const successObj = {
+                  msg: json.code ? 'error' : 'success',
+                  result: json,
+                };
+
+                res.end(JSON.stringify(successObj));
               } else {
-                if (!pagination) {
-                  json = json.slice(0, pagination ? pagesize : MAX_TX);
-                } else {
-                  ecl.close();
-                  isPaginationError = true;
+                if (json &&
+                    json.length) {
+                  const txsCount = json.length;
+                  let isPaginationError = false;
 
-                  const retObj = {
-                    msg: 'error',
-                    result: 'wrong page number',
-                  };
+                  let pagesTotal = Math.ceil((Number(json.length) ? Number(json.length) : 0) / pagesize);
+                  json = sortTransactions(json);
 
-                  res.set({ 'Content-Type': 'application/json' });
-                  res.end(JSON.stringify(retObj));
-                }
-              }
+                  if (pagination &&
+                      page &&
+                      Number(page) &&
+                      page > 0 &&
+                      page <= pagesTotal) {
+                    json = json.slice(Number(page - 1) * pagesize, (page * pagesize));
+                  } else {
+                    if (!pagination) {
+                      json = json.slice(0, pagination ? pagesize : MAX_TX);
+                    } else {
+                      ecl.close();
+                      isPaginationError = true;
 
-              if (!isPaginationError) {
-                let _transactions = [];
+                      const retObj = {
+                        msg: 'error',
+                        result: 'wrong page number',
+                      };
 
-                Promise.all(json.map((transaction, index) => {
-                  return new Promise((resolve, reject) => {
-                    ecl.blockchainTransactionGet(transaction.tx_hash, req.query.verbose && req.query.verbose === 'true' ? true : null)
-                    .then((_rawtxJSON) => {
-                      let txObj = {
-                        height: transaction.height,
-                        txid: transaction.tx_hash,
-                        raw: _rawtxJSON,
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(retObj));
+                    }
+                  }
+
+                  if (!isPaginationError) {
+                    let _transactions = [];
+
+                    Promise.all(json.map((transaction, index) => {
+                      return new Promise((resolve, reject) => {
+                        ecl.blockchainTransactionGet(transaction.tx_hash, req.query.verbose && req.query.verbose === 'true' ? true : null)
+                        .then((_rawtxJSON) => {
+                          let txObj = {
+                            height: transaction.height,
+                            txid: transaction.tx_hash,
+                            raw: _rawtxJSON,
+                          }
+
+                          if (_rawtxJSON.hasOwnProperty('hex')) {
+                            txObj.verbose = _rawtxJSON;
+                            txObj.raw = _rawtxJSON.hex;
+                          }
+
+                          _transactions.push(txObj);
+                          resolve();
+                        });
+                      });
+                    }))
+                    .then(promiseResult => {
+                      ecl.close();
+
+                      let successObj;
+                      _transactions = sortTransactions(_transactions);
+
+                      if (pagination) {
+                        successObj = {
+                          msg: 'success',
+                          result: {
+                            txsCount,
+                            pageSize: pagesize,
+                            pagesTotal,
+                            maxHistoryDepth,
+                            page,
+                            transactions: _transactions,
+                          },
+                        };
+                      } else {
+                        successObj = {
+                          msg: 'success',
+                          result: _transactions,
+                        };
                       }
 
-                      if (_rawtxJSON.hasOwnProperty('hex')) {
-                        txObj.verbose = _rawtxJSON;
-                        txObj.raw = _rawtxJSON.hex;
-                      }
-
-                      _transactions.push(txObj);
-                      resolve();
+                      res.set({ 'Content-Type': 'application/json' });
+                      res.end(JSON.stringify(successObj));
                     });
-                  });
-                }))
-                .then(promiseResult => {
+                  }
+                } else {
                   ecl.close();
 
                   let successObj;
-                  _transactions = sortTransactions(_transactions);
 
                   if (pagination) {
                     successObj = {
                       msg: 'success',
                       result: {
-                        txsCount,
+                        txsCount: 0,
                         pageSize: pagesize,
-                        pagesTotal,
+                        pagesTotal: 0,
                         maxHistoryDepth,
-                        page,
-                        transactions: _transactions,
+                        transactions: [],
                       },
                     };
                   } else {
                     successObj = {
                       msg: 'success',
-                      result: _transactions,
+                      result: [],
                     };
                   }
 
                   res.set({ 'Content-Type': 'application/json' });
                   res.end(JSON.stringify(successObj));
-                });
+                }
               }
-            } else {
-              ecl.close();
-
-              let successObj;
-
-              if (pagination) {
-                successObj = {
-                  msg: 'success',
-                  result: {
-                    txsCount: 0,
-                    pageSize: pagesize,
-                    pagesTotal: 0,
-                    maxHistoryDepth,
-                    transactions: [],
-                  },
-                };
-              } else {
-                successObj = {
-                  msg: 'success',
-                  result: [],
-                };
-              }
-
-              res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(successObj));
-            }
+            });
           }
-        });
-      }
+        } else {
+          ecl.close();
+        }
+      })();
     }
   });
 

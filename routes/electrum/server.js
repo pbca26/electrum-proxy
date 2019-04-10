@@ -39,5 +39,30 @@ module.exports = (api) => {
     }
   });
 
+  api.serverVersion = async function (ecl, res, eprotocol) { 
+    return new Promise((resolve, reject) => { 
+      if (eprotocol &&
+          Number(eprotocol) > 0) {
+        ecl.serverVersion('', eprotocol)
+        .then((serverData) => {
+          if (serverData &&
+              JSON.stringify(serverData).indexOf('"code":') === -1) {
+            ecl.setProtocolVersion(eprotocol);
+            resolve(true);
+          } else {
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              msg: 'error',
+              result: serverData,
+            }));
+            resolve(false);
+          }
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  };
+
   return api;
 };

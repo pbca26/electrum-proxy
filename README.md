@@ -18,6 +18,8 @@ npm start
 
 ## Supported calls
 
+### Electrum protocol 1.4 is supported only for selected methods
+
 Refer to Electrum Server doc for method specific params and outputs https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst
 
 ### All calls are required to have a target Electrum server's IP and a port.
@@ -28,6 +30,8 @@ ex. GET /getbalance?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgpp
 params: ip, port, address where address is a valid pub address
 
 ex. GET /getbalance?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+
+ex. Electrum Protocol 1.4 GET /listunspent?ip=tomscryptos.com&port=50002&proto=ssl&address=3d7ef4693bf858826540d4bf3bb3f73338bec2080d91e9938b108b28a7112378&eprotocol=1.4
 
 #### [GET] getblockinfo eq. to blockchain.block.get_header
 params: ip, port, height where height is a valid blockchain height
@@ -59,6 +63,8 @@ ex. GET /listtransactions?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21L
 
 ex. GET /listtransactions?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1&raw=true&page=2&pagination=true
 
+ex. Electrum Protocol 1.4 GET /listunspent?ip=tomscryptos.com&port=50002&proto=ssl&address=3d7ef4693bf858826540d4bf3bb3f73338bec2080d91e9938b108b28a7112378&eprotocol=1.4
+
 optional params: raw - return raw transaction data for all transactions, maxlength (only together with raw, default value 10). If raw=true transactions are sorted Z to A by timestamp value.
 
 pagination=true - enable pagination
@@ -73,6 +79,8 @@ return format: txsCount - total transactions count for a specific address, pageS
 params: ip, port, address where address is a valid pub address
 
 ex. GET /listunspent?ip=127.0.0.1&port=1111&address=RD1D2UgjiimRPbR8ZMFB21LimBgppcnaU1
+
+ex. Electrum Protocol 1.4 GET /listunspent?ip=tomscryptos.com&port=50002&proto=ssl&address=3d7ef4693bf858826540d4bf3bb3f73338bec2080d91e9938b108b28a7112378&eprotocol=1.4
 
 #### [POST] pushtx eq. to blockchain.transaction.broadcast
 params: ip, port, address where address is a valid pub address

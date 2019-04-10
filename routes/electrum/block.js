@@ -3,26 +3,28 @@ const electrumJSCore = require('./electrumjs.core.js');
 module.exports = (api) => {
   api.get('/getblockinfo', (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+      (async function() {
+        const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+        
+        ecl.connect();
 
-      if (req.query.eprotocol &&
-          Number(req.query.eprotocol) > 0) {
-        ecl.setProtocolVersion(req.query.eprotocol);
-      }
+        if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
+          ecl.blockchainBlockGetHeader(req.query.height)
+          .then((json) => {
+            ecl.close();
 
-      ecl.connect();
-      ecl.blockchainBlockGetHeader(req.query.height)
-      .then((json) => {
-        ecl.close();
+            const successObj = {
+              msg: json.code ? 'error' : 'success',
+              result: json,
+            };
 
-        const successObj = {
-          msg: json.code ? 'error' : 'success',
-          result: json,
-        };
-
-        res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(successObj));
-      });
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(successObj));
+          });
+        }
+      })();
+    } else {
+      ecl.close();
     }
   });
 

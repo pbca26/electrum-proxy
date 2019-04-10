@@ -307,24 +307,24 @@ class ElectrumJSCore extends Client {
     return this.request('server.peers.subscribe', []);
   }
 
-  blockchainAddressGetBalance(str) {
-    return this.request(this.protocolVersion && this.protocolVersion === '1.4' ? 'blockchain.scripthash.get_balance' : 'blockchain.address.get_balance', [str]);
-  }
-
-  blockchainAddressGetHistory(str) {
-    return this.request(this.protocolVersion && this.protocolVersion === '1.4' ? 'blockchain.scripthash.get_history' : 'blockchain.address.get_history', [str]);
-  }
-
   blockchainAddressGetMempool(address) {
     return this.request('blockchain.address.get_mempool', [address]);
   }
 
+  blockchainAddressGetBalance(str) {
+    return this.request(this.protocolVersion && Number(this.protocolVersion) === 1.4 ? 'blockchain.scripthash.get_balance' : 'blockchain.address.get_balance', [str]);
+  }
+
+  blockchainAddressGetHistory(str) {
+    return this.request(this.protocolVersion && Number(this.protocolVersion) === 1.4 ? 'blockchain.scripthash.get_history' : 'blockchain.address.get_history', [str]);
+  }
+
   blockchainAddressListunspent(str) {
-    return this.request(this.protocolVersion && this.protocolVersion === '1.4' ? 'blockchain.scripthash.listunspent' : 'blockchain.address.listunspent', [str]);
+    return this.request(this.protocolVersion && Number(this.protocolVersion) === 1.4 ? 'blockchain.scripthash.listunspent' : 'blockchain.address.listunspent', [str]);
   }
 
   blockchainBlockGetHeader(height) {
-    return this.request(this.protocolVersion && this.protocolVersion === '1.4' ? 'blockchain.block.header' : 'blockchain.block.get_header', [height]);
+    return this.request(this.protocolVersion && Number(this.protocolVersion) === 1.4 ? 'blockchain.block.header' : 'blockchain.block.get_header', [height]);
   }
 
   blockchainBlockGetChunk(index) {
