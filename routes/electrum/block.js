@@ -43,8 +43,8 @@ module.exports = (api) => {
         ecl.close();
 
         const successObj = {
-          msg: json.code || !json.block_height ? 'error' : 'success',
-          result: json.block_height,
+          msg: json.code || (!json.block_height && !json.height) ? 'error' : 'success',
+          result: json.block_height || json.height,
         };
 
         res.set({ 'Content-Type': 'application/json' });
