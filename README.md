@@ -18,7 +18,9 @@ npm start
 
 ## Supported calls
 
-### Electrum protocol 1.4 is supported only for selected methods
+### Electrum protocol 1.4 is supported only for selected methods.
+
+*Note:* Use eprotocol=1.4 param in case a server doesn't support any versions below 1.4. In other cases don't use eprotocol param at all.
 
 Refer to Electrum Server doc for method specific params and outputs https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst
 
