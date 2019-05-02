@@ -11,11 +11,11 @@ module.exports = (api) => {
         if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
           ecl.blockchainAddressGetBalance(req.query.address)
           .then((json) => {
+            ecl.close();
+
             if (json &&
                 json.hasOwnProperty('confirmed') &&
                 json.hasOwnProperty('unconfirmed')) {
-              ecl.close();
-
               const successObj = {
                 msg: json.code ? 'error' : 'success',
                 result: json,
@@ -24,8 +24,6 @@ module.exports = (api) => {
               res.set({ 'Content-Type': 'application/json' });
               res.end(JSON.stringify(successObj));
             } else {
-              ecl.close();
-
               const successObj = {
                 msg: json.code ? 'error' : 'success',
                 result: json,

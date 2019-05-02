@@ -74,8 +74,6 @@ module.exports = (api) => {
           });
         }
       })();
-    } else {
-      ecl.close();
     }
   });
 

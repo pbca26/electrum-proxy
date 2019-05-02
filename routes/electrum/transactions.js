@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const electrumJSCore = require('./electrumjs.core.js');
 const { sortTransactions } = require('../utils');
 

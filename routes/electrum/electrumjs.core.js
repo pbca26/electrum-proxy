@@ -256,7 +256,7 @@ class Client {
     Object.keys(this.callbackMessageQueue).forEach((key) => {
       this.callbackMessageQueue[key]({
         code: '-777',
-        result: 'failed to connect to electrum server'
+        result: 'failed to connect to electrum server',
       });
       delete this.callbackMessageQueue[key];
     });
@@ -284,7 +284,7 @@ class ElectrumJSCore extends Client {
       'server.peers.subscribe',
       'blockchain.numblocks.subscribe',
       'blockchain.headers.subscribe',
-      'blockchain.address.subscribe'
+      'blockchain.address.subscribe',
     ];
 
     list.forEach(event => this.subscribe.removeAllListeners(event));
