@@ -213,7 +213,7 @@ class Client {
     return new Promise((resolve, reject) => {
       const id = ++this.id;
       const content = util.makeRequest(method, params, id);
-
+      
       this.callbackMessageQueue[id] = util.createPromiseResult(resolve, reject);
       this.conn.write(`${content}\n`);
     });

@@ -37,6 +37,11 @@ const urlParamsCheck = (params) => {
     missingParams.ip = 'param is missing';
   }
 
+  if (params.port &&
+      (!Number(params.port) || Number(params.port) < 0 || Number(params.port > 65536))) {
+    missingParams.port = 'param must be in range 0 to 65536';
+  }
+
   return missingParams;
 };
 
