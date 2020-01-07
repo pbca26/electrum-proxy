@@ -45,7 +45,14 @@ const urlParamsCheck = (params) => {
   return missingParams;
 };
 
+const checkTimestamp = (dateToCheck) => {
+  const secondsElapsed = Number(Date.now() / 1000) - Number(dateToCheck / 1000);
+
+  return Math.floor(secondsElapsed);
+};
+
 module.exports = {
   sortTransactions,
   urlParamsCheck,
+  checkTimestamp,
 };
