@@ -1,18 +1,18 @@
 const express = require('express');
-let shepherd = express.Router();
+let api = express.Router();
 
-shepherd = require('./electrum/balance.js')(shepherd);
-shepherd = require('./electrum/transactions.js')(shepherd);
-shepherd = require('./electrum/block.js')(shepherd);
-shepherd = require('./electrum/pushtx.js')(shepherd);
-shepherd = require('./electrum/listunspent.js')(shepherd);
-shepherd = require('./electrum/estimate.js')(shepherd);
-shepherd = require('./electrum/merkle.js')(shepherd);
-shepherd = require('./electrum/server.js')(shepherd);
+api = require('./electrum/balance.js')(api);
+api = require('./electrum/transactions.js')(api);
+api = require('./electrum/block.js')(api);
+api = require('./electrum/pushtx.js')(api);
+api = require('./electrum/listunspent.js')(api);
+api = require('./electrum/estimate.js')(api);
+api = require('./electrum/merkle.js')(api);
+api = require('./electrum/server.js')(api);
 
 // default route
-shepherd.get('/', (req, res, next) => {
+api.get('/', (req, res, next) => {
   res.send('Electrum HTTP-to-TCP Proxy Server');
 });
 
-module.exports = shepherd;
+module.exports = api;
