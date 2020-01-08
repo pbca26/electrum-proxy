@@ -11,6 +11,7 @@ module.exports = (api) => {
       }
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainTransactionGetMerkle(req.query.txid, req.query.height)
       .then((json) => {
         ecl.close();

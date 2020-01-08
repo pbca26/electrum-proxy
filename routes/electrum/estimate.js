@@ -11,6 +11,7 @@ module.exports = (api) => {
       }
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainEstimatefee(req.query.blocks)
       .then((json) => {
         ecl.close();

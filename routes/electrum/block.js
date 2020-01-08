@@ -7,6 +7,7 @@ module.exports = (api) => {
         const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
         
         ecl.connect();
+        api.addElectrumConnection(ecl);
 
         if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
           ecl.blockchainBlockGetHeader(req.query.height)
@@ -38,6 +39,7 @@ module.exports = (api) => {
       }
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainHeadersSubscribe()
       .then((json) => {
         ecl.close();

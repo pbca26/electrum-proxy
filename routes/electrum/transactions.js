@@ -16,10 +16,10 @@ module.exports = (api) => {
     } = req.query;
     
     if (!pagesize ||
-       !Number(pagesize) ||
-       pagesize % 1 !== 0 ||
-       pagesize < 10 ||
-       pagesize > 30) {
+        !Number(pagesize) ||
+        pagesize % 1 !== 0 ||
+        pagesize < 10 ||
+        pagesize > 30) {
       pagesize = 10;
     }
 
@@ -32,6 +32,7 @@ module.exports = (api) => {
         const ecl = new electrumJSCore(port, ip, proto || 'tcp');
         
         ecl.connect();
+        api.addElectrumConnection(ecl);
         
         if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
           if (!raw) {
@@ -191,6 +192,7 @@ module.exports = (api) => {
       }
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainTransactionGet(req.query.txid, req.query.verbose)
       .then((json) => {
         ecl.close();

@@ -12,6 +12,7 @@ module.exports = (api) => {
       }
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainTransactionBroadcast(req.query.rawtx)
       .then((json) => {
         ecl.close();
@@ -38,6 +39,7 @@ module.exports = (api) => {
       }
       
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.blockchainTransactionBroadcast(req.body.rawtx)
       .then((json) => {
         ecl.close();

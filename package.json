@@ -1,7 +1,7 @@
 {
   "name": "electrum-proxy",
   "productName": "Electrum Proxy Server",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Electrum Proxy Server",
   "main": "main.js",
   "scripts": {
@@ -13,7 +13,8 @@
     "agama",
     "SuperNET",
     "komodo",
-    "electrum"
+    "electrum",
+    "proxy"
   ],
   "author": "Komodo Platform",
   "license": "MIT",

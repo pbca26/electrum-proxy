@@ -24,6 +24,7 @@ module.exports = (api) => {
       const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
 
       ecl.connect();
+      api.addElectrumConnection(ecl);
       ecl.serverVersion()
       .then((json) => {
         ecl.close();

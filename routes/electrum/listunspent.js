@@ -8,6 +8,7 @@ module.exports = (api) => {
         const verbose = req.query.verbose && req.query.verbose === 'true' ? true : false;
 
         ecl.connect();
+        api.addElectrumConnection(ecl);
         
         if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
           ecl.blockchainAddressListunspent(req.query.address)
