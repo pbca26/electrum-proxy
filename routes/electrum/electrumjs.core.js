@@ -332,7 +332,7 @@ class ElectrumJSCore extends Client {
   }
 
   blockchainEstimatefee(number) {
-    return this.request('blockchain.estimatefee', [number]);
+    return number ? this.request('blockchain.estimatefee', [number]) : this.request('blockchain.estimatefee');
   }
 
   blockchainHeadersSubscribe() {
