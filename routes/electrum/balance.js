@@ -1,43 +1,42 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
 module.exports = (api) => {
-  api.get('/getbalance', (req, res, next) => {
+  api.get('/getbalance', async(req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      (async function() {
-        const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+      const {port, ip, proto} = req.query;
+      const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
+      
+      if (ecl.hasOwnProperty('code')) {
+        const successObj = {
+          msg: 'error',
+          result: ecl,
+        };
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(successObj));
+      } else {
+        ecl.blockchainAddressGetBalance(req.query.address)
+        .then((json) => {
+          if (json &&
+              json.hasOwnProperty('confirmed') &&
+              json.hasOwnProperty('unconfirmed')) {
+            const successObj = {
+              msg: json.code ? 'error' : 'success',
+              result: json,
+            };
 
-        ecl.connect();
-        api.addElectrumConnection(ecl);
-        
-        if (await api.serverVersion(ecl, res, req.query.eprotocol) === true) {
-          ecl.blockchainAddressGetBalance(req.query.address)
-          .then((json) => {
-            ecl.close();
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(successObj));
+          } else {
+            const successObj = {
+              msg: json.code ? 'error' : 'success',
+              result: json,
+            };
 
-            if (json &&
-                json.hasOwnProperty('confirmed') &&
-                json.hasOwnProperty('unconfirmed')) {
-              const successObj = {
-                msg: json.code ? 'error' : 'success',
-                result: json,
-              };
-
-              res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(successObj));
-            } else {
-              const successObj = {
-                msg: json.code ? 'error' : 'success',
-                result: json,
-              };
-
-              res.set({ 'Content-Type': 'application/json' });
-              res.end(JSON.stringify(successObj));
-            }
-          });
-        } else {
-          ecl.close();
-        }
-      })();
+            res.set({ 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(successObj));
+          }
+        });
+      }
     }
   });
 
