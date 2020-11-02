@@ -1,39 +1,3 @@
-/*const { checkTimestamp } = require('../utils');
-
-const CHECK_INTERVAL = 2000;
-const MAX_TIME = 20; // s
-
-module.exports = (api) => {
-  api.eclStack = [];
-
-  api.checkOpenElectrumConnections = () => {
-    for (let i = 0; i < api.eclStack.length; i++) {
-      const secPassed = checkTimestamp(api.eclStack[i].timestamp);
-
-      if (secPassed >= MAX_TIME) {
-        api.eclStack[i].ecl.close();
-        api.eclStack.splice(i, 1);
-        console.log(`conn terminated | total conn: ${api.eclStack.length}`);
-      }
-    }
-  };
-
-  api.addElectrumConnection = (ecl) => {
-    api.eclStack.push({
-      timestamp: Date.now(),
-      ecl,
-    });
-  };
-
-  api.initElectrumManager = () => {
-    setInterval(() => {
-      api.checkOpenElectrumConnections();
-    }, CHECK_INTERVAL);
-  };
-
-  return api;
-};*/
-
 const { checkTimestamp } = require('../utils');
 const electrumJSCore = require('./electrumjs.core.js');
 
@@ -46,56 +10,60 @@ const PING_TIME = 60;
 
 let electrumServers = {};
 
-getProtocolVersion = (_ecl) => {
+const log = (data) => {
+  if (process.argv.indexOf('debug') > -1) {
+    console.log(data);
+  }
+};
+
+const getProtocolVersion = async (_ecl) => {
   let protocolVersion;
   
-  return new Promise((resolve, reject) => {
-    _ecl.serverVersion('ElectrumProxy')
-    .then((serverData) => {
-      if (serverData &&
-          JSON.stringify(serverData).indexOf('server.version already sent') > -1) {
-        console.log('server version already sent');
-        resolve('sent');
-      }
+  const serverData = await _ecl.serverVersion('ElectrumProxy');
 
-      let serverVersion = 0;
+  if (serverData &&
+      JSON.stringify(serverData).indexOf('server.version already sent') > -1) {
+    log('server version already sent');
+    resolve('sent');
+  }
 
-      if (serverData &&
-          typeof serverData === 'object' &&
-          serverData[0] &&
-          serverData[0].indexOf('ElectrumX') > -1 &&
-          Number(serverData[1])
-      ) {
-        serverVersion = Number(serverData[1]);
+  let serverVersion = 0;
 
-        if (serverVersion) {            
-          protocolVersion = Number(serverData[1]);
-          _ecl.setProtocolVersion(protocolVersion);
-        }
-      }
+  if (serverData &&
+      typeof serverData === 'object' &&
+      serverData[0] &&
+      serverData[0].indexOf('ElectrumX') > -1 &&
+      Number(serverData[1])
+  ) {
+    serverVersion = Number(serverData[1]);
 
-      if (serverData.hasOwnProperty('code') &&
-          serverData.code === '-777') {
-        resolve(serverData);
-      }
+    if (serverVersion) {            
+      protocolVersion = Number(serverData[1]);
+      _ecl.setProtocolVersion(protocolVersion);
+    }
+  }
 
-      console.log(`ecl ${`${_ecl.host}:${_ecl.port}:${_ecl.proto}`} protocol version: ${protocolVersion}`);
-      resolve(protocolVersion);
-    });
-  });
+  if (serverData.hasOwnProperty('code') &&
+      serverData.code === '-777') {
+    resolve(serverData);
+  }
+
+  log(`ecl ${`${_ecl.host}:${_ecl.port}:${_ecl.proto}`} protocol version: ${protocolVersion}`);
+
+  return protocolVersion;
 };
 
 // TODO: exclude server option
-getServer = async(serverData) => {
+const getServer = async(serverData) => {
   const server = [serverData.join(':')];
 
   if (!electrumServers[server]) {
-    console.log('ecl server doesnt exist yet, lets add')
+    log('ecl server doesnt exist yet, lets add');
 
     const ecl = new electrumJSCore(serverData[1], serverData[0], serverData[2]);
-    console.log(`ecl conn ${server}`);
+    log(`ecl conn ${server}`);
     ecl.connect();
-    console.log(`ecl req protocol ${server}`);
+    log(`ecl req protocol ${server}`);
     const eclProtocolVersion = await getProtocolVersion(ecl);
     if (eclProtocolVersion.hasOwnProperty('code')) return eclProtocolVersion;
     
@@ -109,11 +77,11 @@ getServer = async(serverData) => {
       lastPing: Date.now(),
     };
 
-    //console.log(electrumServers)
+    //log(electrumServers)
 
     return electrumServers[server].server;
   } else {
-    console.log(`ecl ${server} server exists`);
+    log(`ecl ${server} server exists`);
     let ecl = electrumServers[server];
     ecl.lastReq = Date.now();
     return ecl.server;
@@ -128,15 +96,15 @@ module.exports = (api) => {
   };
 
   api.checkOpenElectrumConnections = () => {
-    console.log('ecl stack check =>');
-    console.log(api.eclStack);
+    log('ecl stack check =>');
+    log(api.eclStack);
 
     for (let i = 0; i < api.eclStack.length; i++) {
       const secPassed = checkTimestamp(api.eclStack[i].timestamp);
-      console.log(`${secPassed}s ecl connection passed`);
+      log(`${secPassed}s ecl connection passed`);
 
       if (secPassed >= MAX_TIME) {
-        console.log('conn terminated');
+        log('conn terminated');
         api.eclStack[i].ecl.close();
         api.eclStack.splice(i, 1);
       }
@@ -149,38 +117,38 @@ module.exports = (api) => {
       ecl,
     });
 
-    console.log('ecl stack =>');
-    console.log(api.eclStack);
+    log('ecl stack =>');
+    log(api.eclStack);
   };
 
   api.initElectrumManager = () => {
     setInterval(() => {
       for (let server in electrumServers) {
-        console.log(`ecl check server ${server}`);
+        log(`ecl check server ${server}`);
 
         const pingSecPassed = checkTimestamp(electrumServers[server].lastPing);
-        console.log(`ping sec passed ${pingSecPassed}`);
+        log(`ping sec passed ${pingSecPassed}`);
         
         if (pingSecPassed > PING_TIME) {
-          console.log(`ecl ${server} ping limit passed, send ping`);
+          log(`ecl ${server} ping limit passed, send ping`);
 
           getProtocolVersion(electrumServers[server].server)
           .then((eclProtocolVersion) => {
             if (eclProtocolVersion === 'sent') {
-              console.log(`ecl ${server} ping success`);
+              log(`ecl ${server} ping success`);
               electrumServers[server].lastPing = Date.now();
             } else {
-              console.log(`ecl ${server} ping fail, remove server`);
+              log(`ecl ${server} ping fail, remove server`);
               delete electrumServers[server];
             }
           });
         }
 
         const reqSecPassed = checkTimestamp(electrumServers[server].lastReq);
-        console.log(`req sec passed ${reqSecPassed}`);
+        log(`req sec passed ${reqSecPassed}`);
         
         if (reqSecPassed > MAX_IDLE_TIME) {
-          console.log(`ecl ${server} req limit passed, disconnect server`);
+          log(`ecl ${server} req limit passed, disconnect server`);
           electrumServers[server].server.close();
           delete electrumServers[server];
         }
