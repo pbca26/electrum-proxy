@@ -1,9 +1,9 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
 module.exports = (api) => {
-  api.get('/getblockinfo', async(req, res, next) => {
+  api.get('/getblockinfo', async (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const {port, ip, proto} = req.query;
+      const {port, ip, proto, height} = req.query;
       const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
       
       if (ecl.hasOwnProperty('code')) {
@@ -14,24 +14,22 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       } else {
-        ecl.blockchainBlockGetHeader(req.query.height)
-        .then((json) => {
+        const json = await ecl.blockchainBlockGetHeader(height);
 
-          const successObj = {
-            msg: json.code ? 'error' : 'success',
-            result: json,
-          };
+        const successObj = {
+          msg: json.code ? 'error' : 'success',
+          result: json,
+        };
 
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
-        });
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(successObj));
       }
     }
   });
 
-  api.get('/getcurrentblock', async(req, res, next) => {
+  api.get('/getcurrentblock', async (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const {port, ip, proto} = req.query;
+      const {port, ip, proto, eprotocol} = req.query;
       const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
       
       if (ecl.hasOwnProperty('code')) {
@@ -42,21 +40,20 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       } else {
-        if (req.query.eprotocol &&
-            Number(req.query.eprotocol) > 0) {
-          ecl.setProtocolVersion(req.query.eprotocol);
+        if (eprotocol &&
+            Number(eprotocol) > 0) {
+          ecl.setProtocolVersion(eprotocol);
         }
 
-        ecl.blockchainHeadersSubscribe()
-        .then((json) => {
-          const successObj = {
-            msg: json.code || (!json.block_height && !json.height) ? 'error' : 'success',
-            result: json.block_height || json.height,
-          };
+        const json = await ecl.blockchainHeadersSubscribe();
 
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
-        });
+        const successObj = {
+          msg: json.code || (!json.block_height && !json.height) ? 'error' : 'success',
+          result: json.block_height || json.height,
+        };
+
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(successObj));
       }
     }
   });

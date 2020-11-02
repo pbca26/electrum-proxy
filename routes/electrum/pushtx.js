@@ -2,9 +2,9 @@ const electrumJSCore = require('./electrumjs.core.js');
 
 module.exports = (api) => {
   // test
-  api.get('/pushtx', async(req, res, next) => {
+  api.get('/pushtx', async (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const {port, ip, proto} = req.query;
+      const {port, ip, proto, rawtx} = req.query;
       const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
       
       if (ecl.hasOwnProperty('code')) {
@@ -15,29 +15,28 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       } else {
-        if (req.query.eprotocol &&
-            Number(req.query.eprotocol) > 0) {
-          ecl.setProtocolVersion(req.query.eprotocol);
+        if (eprotocol &&
+            Number(eprotocol) > 0) {
+          ecl.setProtocolVersion(eprotocol);
         }
 
-        ecl.blockchainTransactionBroadcast(req.query.rawtx)
-        .then((json) => {
-          const successObj = {
-            msg: json.code ? 'error' : 'success',
-            result: json,
-          };
+        const json = await ecl.blockchainTransactionBroadcast(rawtx);
 
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
-        });
+        const successObj = {
+          msg: json.code ? 'error' : 'success',
+          result: json,
+        };
+
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(successObj));
       }
     }
   });
 
   // live
-  api.post('/pushtx', async(req, res, next) => {
+  api.post('/pushtx', async (req, res, next) => {
     if (api.checkServerData(req.body, res)) {
-      const {port, ip, proto} = req.body;
+      const {port, ip, proto, eprotocol, rawtx} = req.body;
       const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
       
       if (ecl.hasOwnProperty('code')) {
@@ -48,21 +47,20 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       } else {
-        if (req.body.eprotocol &&
-            Number(req.body.eprotocol) > 0) {
-          ecl.setProtocolVersion(req.query.eprotocol);
+        if (eprotocol &&
+            Number(eprotocol) > 0) {
+          ecl.setProtocolVersion(eprotocol);
         }
         
-        ecl.blockchainTransactionBroadcast(req.body.rawtx)
-        .then((json) => {
-          const successObj = {
-            msg: json.code ? 'error' : 'success',
-            result: json,
-          };
+        const json = await ecl.blockchainTransactionBroadcast(rawtx);
 
-          res.set({ 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(successObj));
-        });
+        const successObj = {
+          msg: json.code ? 'error' : 'success',
+          result: json,
+        };
+
+        res.set({ 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(successObj));
       }
     }
   });

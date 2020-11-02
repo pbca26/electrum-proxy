@@ -1,9 +1,9 @@
 const electrumJSCore = require('./electrumjs.core.js');
 
 module.exports = (api) => {
-  api.get('/getbalance', async(req, res, next) => {
+  api.get('/getbalance', async (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const {port, ip, proto} = req.query;
+      const {port, ip, proto, address} = req.query;
       const ecl = await api.ecl.getServer([ip, port, proto || 'tcp']);
       
       if (ecl.hasOwnProperty('code')) {
@@ -14,28 +14,27 @@ module.exports = (api) => {
         res.set({ 'Content-Type': 'application/json' });
         res.end(JSON.stringify(successObj));
       } else {
-        ecl.blockchainAddressGetBalance(req.query.address)
-        .then((json) => {
-          if (json &&
-              json.hasOwnProperty('confirmed') &&
-              json.hasOwnProperty('unconfirmed')) {
-            const successObj = {
-              msg: json.code ? 'error' : 'success',
-              result: json,
-            };
+        const json = await ecl.blockchainAddressGetBalance(address);
 
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
-          } else {
-            const successObj = {
-              msg: json.code ? 'error' : 'success',
-              result: json,
-            };
+        if (json &&
+            json.hasOwnProperty('confirmed') &&
+            json.hasOwnProperty('unconfirmed')) {
+          const successObj = {
+            msg: json.code ? 'error' : 'success',
+            result: json,
+          };
 
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(successObj));
-          }
-        });
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(successObj));
+        } else {
+          const successObj = {
+            msg: json.code ? 'error' : 'success',
+            result: json,
+          };
+
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(successObj));
+        }
       }
     }
   });

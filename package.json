@@ -1,7 +1,7 @@
 {
   "name": "electrum-proxy",
   "productName": "Electrum Proxy Server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Electrum Proxy Server",
   "main": "main.js",
   "scripts": {

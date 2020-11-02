@@ -19,46 +19,44 @@ module.exports = (api) => {
     return true;
   };
 
-  api.get('/server/version', (req, res, next) => {
+  api.get('/server/version', async (req, res, next) => {
     if (api.checkServerData(req.query, res)) {
-      const ecl = new electrumJSCore(req.query.port, req.query.ip, req.query.proto || 'tcp');
+      const {ip, port, proto} = req.query;
+      const ecl = new electrumJSCore(port, ip, proto || 'tcp');
 
       ecl.connect();
       api.addElectrumConnection(ecl);
-      ecl.serverVersion()
-      .then((json) => {
-        ecl.close();
+      const json = await ecl.serverVersion();
+      ecl.close();
+      
+      const successObj = {
+        msg: json.code ? 'error' : 'success',
+        result: json,
+      };
 
-        const successObj = {
-          msg: json.code ? 'error' : 'success',
-          result: json,
-        };
-
-        res.set({ 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(successObj));
-      });
+      res.set({ 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(successObj));
     }
   });
 
-  api.serverVersion = async function (ecl, res, eprotocol) { 
-    return new Promise((resolve, reject) => { 
+  api.serverVersion = async (ecl, res, eprotocol) => { 
+    return new Promise(async(resolve, reject) => { 
       if (eprotocol &&
           Number(eprotocol) > 0) {
-        ecl.serverVersion('', eprotocol)
-        .then((serverData) => {
-          if (serverData &&
-              JSON.stringify(serverData).indexOf('"code":') === -1) {
-            ecl.setProtocolVersion(eprotocol);
-            resolve(true);
-          } else {
-            res.set({ 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-              msg: 'error',
-              result: serverData,
-            }));
-            resolve(false);
-          }
-        });
+        const serverData = await ecl.serverVersion('', eprotocol);
+
+        if (serverData &&
+            JSON.stringify(serverData).indexOf('"code":') === -1) {
+          ecl.setProtocolVersion(eprotocol);
+          resolve(true);
+        } else {
+          res.set({ 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            msg: 'error',
+            result: serverData,
+          }));
+          resolve(false);
+        }
       } else {
         resolve(true);
       }
