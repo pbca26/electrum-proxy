@@ -2,7 +2,7 @@
 MIT License
 
 Copyright (c) 2017 Yuki Akiyama, SuperNET
-Copyright (c) 2018 - 2019 SuperNET
+Copyright (c) 2018 - 2020 SuperNET
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -163,6 +163,7 @@ class Client {
     this.id = 0;
     this.port = port;
     this.host = host;
+    this.proto = protocol;
     this.protocolVersion = null;
     this.callbackMessageQueue = {};
     this.subscribe = new EventEmitter();
